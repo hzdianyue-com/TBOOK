@@ -174,8 +174,6 @@ public class MainActivity extends AppCompatActivity {
                 recordList.add(record);
             }
         }
-
-
         recordAdapter.setList(recordList);
         updateTotalAmount(recordList);
     }
@@ -184,7 +182,6 @@ public class MainActivity extends AppCompatActivity {
         double totalIncome = 0.0;
         double totalExpense = 0.0;
         double totalAmount = 0.0;
-
         for (Record record : dbHelper.getAllRecords()){
             if(record.getType().equals(getString(R.string.income))){
                 totalIncome += record.getAmount();
@@ -192,9 +189,7 @@ public class MainActivity extends AppCompatActivity {
                 totalExpense += record.getAmount();
             }
         }
-
         totalAmount = totalIncome - totalExpense;
-
         String totalAmountText = String.format(getString(R.string.total_amount), totalAmount);
         totalAmountTextView.setText(totalAmountText);
 
@@ -212,7 +207,6 @@ public class MainActivity extends AppCompatActivity {
         double monthTotal = monthIncome - monthExpense;
         String monthSummary = String.format("%d月总计：%.2f", selectMonth + 1, monthTotal);
         monthSummaryTextView.setText(monthSummary);
-
 
     }
 }
