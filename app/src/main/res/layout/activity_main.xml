@@ -21,11 +21,20 @@ tools:context=".ui.MainActivity">
     android:layout_height="0dp"
     android:layout_weight="1"/>
 
+
 <Button
     android:id="@+id/add_record_button"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:text="@string/add_record"
+    android:layout_margin="16dp"/>
+
+<Button
+    android:id="@+id/report_button"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_weight="1"
+    android:text="报表"
     android:layout_margin="16dp"/>
 
 </LinearLayout>

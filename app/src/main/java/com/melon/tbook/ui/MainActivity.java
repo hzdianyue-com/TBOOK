@@ -2,7 +2,6 @@ package com.melon.tbook.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -22,6 +21,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView totalAmountTextView;
     private RecyclerView recordRecyclerView;
     private Button addRecordButton;
+    private Button reportButton;
     private DBHelper dbHelper;
     private RecordAdapter recordAdapter;
 
@@ -33,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
         totalAmountTextView = findViewById(R.id.total_amount_text_view);
         recordRecyclerView = findViewById(R.id.record_recycler_view);
         addRecordButton = findViewById(R.id.add_record_button);
+        reportButton = findViewById(R.id.report_button);
 
         dbHelper = new DBHelper(this);
 
@@ -41,6 +42,11 @@ public class MainActivity extends AppCompatActivity {
 
         addRecordButton.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, AddRecordActivity.class);
+            startActivity(intent);
+        });
+
+        reportButton.setOnClickListener(v ->{
+            Intent intent = new Intent(MainActivity.this, ReportActivity.class);
             startActivity(intent);
         });
 
@@ -74,6 +80,5 @@ public class MainActivity extends AppCompatActivity {
 
         String totalAmountText = String.format(getString(R.string.total_amount), totalAmount);
         totalAmountTextView.setText(totalAmountText);
-
     }
 }
