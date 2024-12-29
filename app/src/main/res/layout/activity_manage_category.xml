@@ -1,0 +1,60 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    tools:context=".ui.ManageCategoryActivity">
+
+    <RadioGroup
+        android:id="@+id/category_type_radio_group"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="16dp">
+
+        <RadioButton
+            android:id="@+id/income_category_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="收入分类"
+            android:checked="true" />
+
+        <RadioButton
+            android:id="@+id/expense_category_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="支出分类" />
+    </RadioGroup>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="16dp">
+
+        <EditText
+            android:id="@+id/add_category_edit_text"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"/>
+
+        <Button
+            android:id="@+id/add_category_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="添加分类"
+            android:textSize="12sp"/>
+
+
+    </LinearLayout>
+
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/category_recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+</LinearLayout>
