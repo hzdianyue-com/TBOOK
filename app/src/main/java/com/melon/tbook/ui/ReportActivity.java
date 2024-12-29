@@ -1,5 +1,6 @@
 package com.melon.tbook.ui;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -11,9 +12,11 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.github.mikephil.charting.charts.PieChart;
+import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
+import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.github.mikephil.charting.utils.ColorTemplate;
 import com.melon.tbook.R;
 import com.melon.tbook.db.DBHelper;
@@ -182,11 +185,14 @@ public class ReportActivity extends AppCompatActivity {
         }
 
         Map<String, Double> categoryAmounts = new HashMap<>();
+        double totalExpense = 0.0;
+
         for (Record record : recordList) {
             if (record.getType().equals(getString(R.string.expense))) { // 只统计支出
                 String category = record.getCategory();
                 double amount = record.getAmount();
                 categoryAmounts.put(category, categoryAmounts.getOrDefault(category, 0.0) + amount);
+                totalExpense += amount;
             }
         }
 
@@ -196,25 +202,51 @@ public class ReportActivity extends AppCompatActivity {
         }else{
             pieChart.setVisibility(View.VISIBLE);
             noDataTextView.setVisibility(View.GONE);
-            setupPieChart(categoryAmounts);
+            setupPieChart(categoryAmounts,totalExpense);
         }
     }
 
-    private void setupPieChart(Map<String, Double> categoryAmounts) {
+
+    private void setupPieChart(Map<String, Double> categoryAmounts, double totalExpense) {
         List<PieEntry> pieEntries = new ArrayList<>();
         for (Map.Entry<String, Double> entry : categoryAmounts.entrySet()) {
-            pieEntries.add(new PieEntry(entry.getValue().floatValue(), entry.getKey()));
+            double percentage = (entry.getValue() / totalExpense) * 100;
+            String label = entry.getKey() + " (" + String.format("%.1f",percentage) + "%)" + "\n" + String.format("%.2f",entry.getValue()) + "元";
+            pieEntries.add(new PieEntry((float) percentage, label));
         }
 
         PieDataSet dataSet = new PieDataSet(pieEntries, "");
         dataSet.setColors(ColorTemplate.MATERIAL_COLORS);
         dataSet.setValueTextSize(12f);
 
+
+        // 自定义ValueFormatter，处理标签换行
+        dataSet.setValueFormatter(new ValueFormatter() {
+            @Override
+            public String getFormattedValue(float value) {
+                return ""; // 不显示百分比本身的值，只显示标签
+            }
+        });
+
         PieData pieData = new PieData(dataSet);
+
         pieChart.setData(pieData);
         pieChart.getDescription().setEnabled(false);
         pieChart.setCenterText("消费分析");
-        pieChart.setDrawEntryLabels(false); // 不显示标签
+        pieChart.setUsePercentValues(true);
+        pieChart.setDrawEntryLabels(true);
+        pieChart.setEntryLabelColor(Color.BLACK);
+        pieChart.setEntryLabelTextSize(12f);
+
+
+        Legend legend = pieChart.getLegend();
+        legend.setVerticalAlignment(Legend.LegendVerticalAlignment.BOTTOM); //设置图例在底部
+        legend.setHorizontalAlignment(Legend.LegendHorizontalAlignment.CENTER); //设置水平居中
+        legend.setOrientation(Legend.LegendOrientation.HORIZONTAL); // 设置水平排列
+        legend.setDrawInside(false);
+        legend.setWordWrapEnabled(true);
+
+
         pieChart.invalidate();
     }
 }
