@@ -2,11 +2,7 @@ package com.melon.tbook.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,30 +10,27 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.melon.tbook.R;
-import com.melon.tbook.adapter.RecordAdapter;
+import com.melon.tbook.adapter.AccountTotalAdapter;
 import com.melon.tbook.db.DBHelper;
 import com.melon.tbook.db.Record;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
     private TextView totalAmountTextView;
-    private RecyclerView recordRecyclerView;
+    private RecyclerView accountTotalRecyclerView;
     private Button addRecordButton;
     private Button reportButton;
+    private Button recordListButton;
     private DBHelper dbHelper;
-    private RecordAdapter recordAdapter;
-    private Spinner monthSpinner, yearSpinner;
-    private int selectMonth, selectYear;
     private TextView monthSummaryTextView;
-    private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM", Locale.getDefault());
-
+    private AccountTotalAdapter accountTotalAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,17 +38,15 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         totalAmountTextView = findViewById(R.id.total_amount_text_view);
-        recordRecyclerView = findViewById(R.id.record_recycler_view);
+        accountTotalRecyclerView = findViewById(R.id.account_total_recycler_view);
         addRecordButton = findViewById(R.id.add_record_button);
         reportButton = findViewById(R.id.report_button);
-        monthSpinner = findViewById(R.id.month_spinner);
-        yearSpinner = findViewById(R.id.year_spinner);
+        recordListButton = findViewById(R.id.record_list_button);
         monthSummaryTextView = findViewById(R.id.month_summary_text_view);
 
+
         dbHelper = new DBHelper(this);
-
-        recordRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-
+        accountTotalRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         addRecordButton.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, AddRecordActivity.class);
@@ -67,90 +58,42 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-
-        recordAdapter = new RecordAdapter(new ArrayList<>());
-        recordRecyclerView.setAdapter(recordAdapter);
-
-        recordAdapter.setOnItemClickListener(recordId -> {
-            dbHelper.deleteRecord(recordId);
-            loadRecords();
-        });
-
-
-        initYearSpinner();
-
-        yearSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                selectYear = Integer.parseInt(parent.getItemAtPosition(position).toString());
-                initMonthSpinner(selectYear);
-            }
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
-
-        monthSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                selectMonth = position;
-                loadRecords();
-            }
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
+        recordListButton.setOnClickListener(v ->{
+            Intent intent = new Intent(MainActivity.this, RecordListActivity.class);
+            startActivity(intent);
         });
     }
 
-    private void initYearSpinner() {
-        Calendar calendar = Calendar.getInstance();
-        int currentYear = calendar.get(Calendar.YEAR);
-
-        List<String> yearList = new ArrayList<>();
-        for (int i = currentYear - 10; i <= currentYear + 10; i++) {
-            yearList.add(String.valueOf(i));
-        }
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, yearList);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        yearSpinner.setAdapter(adapter);
-        int index = yearList.indexOf(String.valueOf(currentYear));
-        yearSpinner.setSelection(index);
-        selectYear = currentYear;
-        initMonthSpinner(currentYear);
-
-    }
-
-
-    private void initMonthSpinner(int year){
-        monthSpinner.setVisibility(View.VISIBLE);
-        List<String> monthList = new ArrayList<>();
-        for(int i = 1; i <= 12; i++){
-            monthList.add(String.format("%02d",i));
-        }
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, monthList);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        monthSpinner.setAdapter(adapter);
-        Calendar calendar = Calendar.getInstance();
-        int index = calendar.get(Calendar.MONTH);
-        monthSpinner.setSelection(index);
-        selectMonth = index;
-        loadRecords();
-    }
 
 
     @Override
     protected void onResume() {
         super.onResume();
-        loadRecords();
+        updateTotalAmount();
     }
+    private void updateTotalAmount() {
+        double totalIncome = 0.0;
+        double totalExpense = 0.0;
+        double totalAmount = 0.0;
+        for (Record record : dbHelper.getAllRecords()){
+            if(record.getType().equals(getString(R.string.income))){
+                totalIncome += record.getAmount();
+            }else{
+                totalExpense += record.getAmount();
+            }
+        }
+        totalAmount = totalIncome - totalExpense;
 
+        String totalAmountText = String.format(getString(R.string.total_amount), totalAmount);
+        totalAmountTextView.setText(totalAmountText);
 
-    private void loadRecords(){
+        Calendar calendar = Calendar.getInstance();
+        int month = calendar.get(Calendar.MONTH) + 1;
+
+        double monthIncome = 0.0;
+        double monthExpense = 0.0;
+
         Calendar startCal = Calendar.getInstance();
-        startCal.set(Calendar.YEAR,selectYear);
-        startCal.set(Calendar.MONTH,selectMonth);
         startCal.set(Calendar.DAY_OF_MONTH,1);
         startCal.set(Calendar.HOUR_OF_DAY,0);
         startCal.set(Calendar.MINUTE,0);
@@ -158,8 +101,6 @@ public class MainActivity extends AppCompatActivity {
         Date startDate = startCal.getTime();
 
         Calendar endCal = Calendar.getInstance();
-        endCal.set(Calendar.YEAR,selectYear);
-        endCal.set(Calendar.MONTH,selectMonth);
         endCal.set(Calendar.DAY_OF_MONTH,endCal.getActualMaximum(Calendar.DAY_OF_MONTH));
         endCal.set(Calendar.HOUR_OF_DAY,23);
         endCal.set(Calendar.MINUTE,59);
@@ -174,28 +115,7 @@ public class MainActivity extends AppCompatActivity {
                 recordList.add(record);
             }
         }
-        recordAdapter.setList(recordList);
-        updateTotalAmount(recordList);
-    }
 
-    private void updateTotalAmount(List<Record> recordList) {
-        double totalIncome = 0.0;
-        double totalExpense = 0.0;
-        double totalAmount = 0.0;
-        for (Record record : dbHelper.getAllRecords()){
-            if(record.getType().equals(getString(R.string.income))){
-                totalIncome += record.getAmount();
-            }else{
-                totalExpense += record.getAmount();
-            }
-        }
-        totalAmount = totalIncome - totalExpense;
-        String totalAmountText = String.format(getString(R.string.total_amount), totalAmount);
-        totalAmountTextView.setText(totalAmountText);
-
-
-        double monthIncome = 0.0;
-        double monthExpense = 0.0;
 
         for (Record record : recordList){
             if(record.getType().equals(getString(R.string.income))){
@@ -205,8 +125,48 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         double monthTotal = monthIncome - monthExpense;
-        String monthSummary = String.format("%d月总计：%.2f", selectMonth + 1, monthTotal);
+        String monthSummary = String.format("%d月总计：%.2f", month, monthTotal);
         monthSummaryTextView.setText(monthSummary);
+        loadAccountTotalList();
 
     }
+
+
+    private void loadAccountTotalList(){
+        Map<String, AccountTotalAdapter.AccountInfo> accountTotal = getAccountTotal();
+        List<Map.Entry<String, AccountTotalAdapter.AccountInfo>> entryList = new ArrayList<>(accountTotal.entrySet());
+        if(accountTotalAdapter == null){
+            accountTotalAdapter = new AccountTotalAdapter(entryList);
+            accountTotalRecyclerView.setAdapter(accountTotalAdapter);
+        } else {
+            accountTotalAdapter.setList(entryList);
+        }
+    }
+
+    private Map<String, AccountTotalAdapter.AccountInfo> getAccountTotal(){
+        Map<String,AccountTotalAdapter.AccountInfo> accountTotal = new HashMap<>();
+        List<Record> allRecords = dbHelper.getAllRecords();
+        for(Record record : allRecords){
+            String accountName = record.getAccount();
+            double amount = record.getAmount();
+            if (accountName == null){
+                accountName = "默认账户";
+            }
+            double income = 0.0;
+            double expense = 0.0;
+            if(record.getType().equals(getString(R.string.income))){
+                income = amount;
+            } else {
+                expense = amount;
+            }
+            AccountTotalAdapter.AccountInfo accountInfo = accountTotal.getOrDefault(accountName,new AccountTotalAdapter.AccountInfo(0,0,0));
+            accountInfo.setIncome(accountInfo.getIncome() + income);
+            accountInfo.setExpense(accountInfo.getExpense() + expense);
+            accountInfo.setTotal(accountInfo.getTotal() + income - expense);
+            accountTotal.put(accountName,accountInfo);
+
+        }
+        return accountTotal;
+    }
+
 }
