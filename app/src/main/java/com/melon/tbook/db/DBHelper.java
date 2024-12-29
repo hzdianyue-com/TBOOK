@@ -23,8 +23,13 @@ public class DBHelper extends SQLiteOpenHelper {
     private static final String COLUMN_CATEGORY = "category";
     private static final String COLUMN_REMARK = "remark";
     private static final String COLUMN_DATE = "date";
-    private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+    private static final String COLUMN_ACCOUNT = "account"; // 新增子账户列
+    private static final String TABLE_ACCOUNTS = "accounts";
+    private static final String COLUMN_ACCOUNT_ID = "_id";
+    private static final String COLUMN_ACCOUNT_NAME = "account_name";
 
+
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
 
 
     public DBHelper(Context context) {
@@ -33,19 +38,29 @@ public class DBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
+        // 创建记录表
         String createTableQuery = "CREATE TABLE " + TABLE_RECORDS + " (" +
                 COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 COLUMN_TYPE + " TEXT, " +
                 COLUMN_AMOUNT + " REAL, " +
                 COLUMN_CATEGORY + " TEXT, " +
                 COLUMN_REMARK + " TEXT, " +
-                COLUMN_DATE + " TEXT)";
+                COLUMN_DATE + " TEXT, " +
+                COLUMN_ACCOUNT + " TEXT)"; // 新增子账户列
         db.execSQL(createTableQuery);
+
+        // 创建账户表
+        String createAccountTable = "CREATE TABLE " + TABLE_ACCOUNTS + " (" +
+                COLUMN_ACCOUNT_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                COLUMN_ACCOUNT_NAME + " TEXT UNIQUE)";
+        db.execSQL(createAccountTable);
+
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_RECORDS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_ACCOUNTS);
         onCreate(db);
     }
 
@@ -58,6 +73,7 @@ public class DBHelper extends SQLiteOpenHelper {
         values.put(COLUMN_CATEGORY, record.getCategory());
         values.put(COLUMN_REMARK, record.getRemark());
         values.put(COLUMN_DATE, dateFormat.format(record.getDate()));
+        values.put(COLUMN_ACCOUNT, record.getAccount()); // 新增子账户
         long insertId = db.insert(TABLE_RECORDS, null, values);
         db.close();
         return insertId;
@@ -78,6 +94,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 String category = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_CATEGORY));
                 String remark = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_REMARK));
                 String dateString = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_DATE));
+                String account = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_ACCOUNT)); // 新增子账户
 
                 Date date = null;
                 try {
@@ -86,7 +103,7 @@ public class DBHelper extends SQLiteOpenHelper {
                     e.printStackTrace();
                 }
 
-                Record record = new Record(id, type, amount, category, remark, date);
+                Record record = new Record(id, type, amount, category, remark, date, account);
                 records.add(record);
             } while (cursor.moveToNext());
             cursor.close();
@@ -95,6 +112,55 @@ public class DBHelper extends SQLiteOpenHelper {
         db.close();
         return records;
     }
+
+
+    // 添加子账户
+    public long addAccount(String accountName) {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_ACCOUNT_NAME, accountName);
+        long insertId = db.insert(TABLE_ACCOUNTS, null, values);
+        db.close();
+        return insertId;
+    }
+
+    // 删除子账户
+    public void deleteAccount(int accountId) {
+        SQLiteDatabase db = getWritableDatabase();
+        db.delete(TABLE_ACCOUNTS,COLUMN_ACCOUNT_ID + " = ?", new String[]{String.valueOf(accountId)});
+        db.close();
+    }
+
+    // 更新子账户
+    public int updateAccount(int accountId,String accountName) {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_ACCOUNT_NAME, accountName);
+        int updateRow = db.update(TABLE_ACCOUNTS, values,COLUMN_ACCOUNT_ID + " = ?",new String[]{String.valueOf(accountId)});
+        db.close();
+        return updateRow;
+
+    }
+
+    // 获取所有子账户
+    public List<String> getAllAccounts() {
+        List<String> accounts = new ArrayList<>();
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.query(TABLE_ACCOUNTS, new String[]{COLUMN_ACCOUNT_NAME},null,null,null,null,null);
+
+        if(cursor != null && cursor.moveToFirst()){
+            do{
+                String accountName = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_ACCOUNT_NAME));
+                accounts.add(accountName);
+            }while (cursor.moveToNext());
+            cursor.close();
+        }
+
+        db.close();
+        return accounts;
+
+    }
+
 
     // 计算总收入
     public double getTotalIncome() {

@@ -4,31 +4,41 @@ import java.util.Date;
 
 public class Record {
     private int id;
-    private String type; // 收入或支出
+    private String type;
     private double amount;
     private String category;
     private String remark;
     private Date date;
+    private String account; // 新增子账户字段
 
-    // 默认构造函数
     public Record() {
     }
 
-    public Record(String type, double amount, String category, String remark, Date date) {
+    public Record(String type, double amount, String category, String remark, Date date, String account) {
         this.type = type;
         this.amount = amount;
         this.category = category;
         this.remark = remark;
         this.date = date;
+        this.account = account;
     }
 
-    public Record(int id, String type, double amount, String category, String remark, Date date) {
+    public Record(int id, String type, double amount, String category, String remark, Date date, String account) {
         this.id = id;
         this.type = type;
         this.amount = amount;
         this.category = category;
         this.remark = remark;
         this.date = date;
+        this.account = account;
+    }
+
+    public String getAccount() {
+        return account;
+    }
+
+    public void setAccount(String account) {
+        this.account = account;
     }
 
 

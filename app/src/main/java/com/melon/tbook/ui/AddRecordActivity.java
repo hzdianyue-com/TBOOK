@@ -1,7 +1,9 @@
 package com.melon.tbook.ui;
 
 import android.app.DatePickerDialog;
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -17,10 +19,10 @@ import com.melon.tbook.R;
 import com.melon.tbook.db.DBHelper;
 import com.melon.tbook.db.Record;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 public class AddRecordActivity extends AppCompatActivity {
@@ -28,8 +30,8 @@ public class AddRecordActivity extends AppCompatActivity {
     private RadioGroup accountTypeRadioGroup;
     private RadioButton incomeRadioButton, expenseRadioButton;
     private EditText amountEditText, remarkEditText;
-    private Spinner categorySpinner;
-    private Button saveButton, selectDateButton;
+    private Spinner categorySpinner, accountSpinner;
+    private Button saveButton, selectDateButton, manageAccountButton;
     private DBHelper dbHelper;
     private TextView dateTextView;
     private Calendar calendar;
@@ -51,6 +53,9 @@ public class AddRecordActivity extends AppCompatActivity {
         saveButton = findViewById(R.id.save_button);
         dateTextView = findViewById(R.id.date_text_view);
         selectDateButton = findViewById(R.id.select_date_button);
+        accountSpinner = findViewById(R.id.account_spinner);
+        manageAccountButton = findViewById(R.id.manage_account_button);
+
 
         dbHelper = new DBHelper(this);
         calendar = Calendar.getInstance();
@@ -58,17 +63,36 @@ public class AddRecordActivity extends AppCompatActivity {
         dateTextView.setText(dateFormat.format(selectDate));
 
 
-
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.categories, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         categorySpinner.setAdapter(adapter);
 
+        loadAccounts();
 
         saveButton.setOnClickListener(v -> saveRecord());
 
         selectDateButton.setOnClickListener(v -> showDatePickerDialog());
 
+        manageAccountButton.setOnClickListener(v -> {
+            Intent intent = new Intent(AddRecordActivity.this, ManageAccountActivity.class);
+            startActivity(intent);
+        });
+
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadAccounts();
+    }
+
+    private void loadAccounts() {
+        List<String> accountList = dbHelper.getAllAccounts();
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item,accountList);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        accountSpinner.setAdapter(adapter);
+    }
+
 
     private void showDatePickerDialog(){
         DatePickerDialog datePickerDialog = new DatePickerDialog(this, (view, year, month, dayOfMonth) -> {
@@ -89,13 +113,15 @@ public class AddRecordActivity extends AppCompatActivity {
         String amountStr = amountEditText.getText().toString();
         String category = categorySpinner.getSelectedItem().toString();
         String remark = remarkEditText.getText().toString();
+        String account = accountSpinner.getSelectedItem().toString();
+
 
         if(amountStr.isEmpty()){
             Toast.makeText(this, getString(R.string.error_amount), Toast.LENGTH_SHORT).show();
             return;
         }
         double amount = Double.parseDouble(amountStr);
-        Record record = new Record(type, amount, category, remark, selectDate);
+        Record record = new Record(type, amount, category, remark, selectDate, account);
         long insertId = dbHelper.addRecord(record);
 
         if (insertId > 0) {
@@ -104,6 +130,4 @@ public class AddRecordActivity extends AppCompatActivity {
             Toast.makeText(this, "保存失败", Toast.LENGTH_SHORT).show();
         }
     }
-
-
 }
