@@ -31,7 +31,7 @@ public class AddRecordActivity extends AppCompatActivity {
     private RadioButton incomeRadioButton, expenseRadioButton;
     private EditText amountEditText, remarkEditText;
     private Spinner categorySpinner, accountSpinner;
-    private Button saveButton, selectDateButton, manageAccountButton;
+    private Button saveButton, selectDateButton, manageAccountButton,manageCategoryButton;
     private DBHelper dbHelper;
     private TextView dateTextView;
     private Calendar calendar;
@@ -55,7 +55,7 @@ public class AddRecordActivity extends AppCompatActivity {
         selectDateButton = findViewById(R.id.select_date_button);
         accountSpinner = findViewById(R.id.account_spinner);
         manageAccountButton = findViewById(R.id.manage_account_button);
-
+        manageCategoryButton = findViewById(R.id.manage_category_button);
 
         dbHelper = new DBHelper(this);
         calendar = Calendar.getInstance();
@@ -63,10 +63,7 @@ public class AddRecordActivity extends AppCompatActivity {
         dateTextView.setText(dateFormat.format(selectDate));
 
 
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.categories, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        categorySpinner.setAdapter(adapter);
-
+        loadCategories();
         loadAccounts();
 
         saveButton.setOnClickListener(v -> saveRecord());
@@ -78,14 +75,32 @@ public class AddRecordActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
+        manageCategoryButton.setOnClickListener(v -> {
+            Intent intent = new Intent(AddRecordActivity.this,ManageCategoryActivity.class);
+            startActivity(intent);
+        });
+
+        accountTypeRadioGroup.setOnCheckedChangeListener((group, checkedId) -> {
+            loadCategories();
+        });
+
+
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        loadCategories();
         loadAccounts();
     }
 
+    private void loadCategories(){
+        String type = incomeRadioButton.isChecked() ? getString(R.string.income) : getString(R.string.expense);
+        List<String> categoryList = dbHelper.getAllCategories(type);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item,categoryList);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        categorySpinner.setAdapter(adapter);
+    }
     private void loadAccounts() {
         List<String> accountList = dbHelper.getAllAccounts();
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item,accountList);

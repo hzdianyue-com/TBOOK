@@ -24,10 +24,14 @@ public class DBHelper extends SQLiteOpenHelper {
     private static final String COLUMN_REMARK = "remark";
     private static final String COLUMN_DATE = "date";
     private static final String COLUMN_ACCOUNT = "account"; // 新增子账户列
+
     private static final String TABLE_ACCOUNTS = "accounts";
     private static final String COLUMN_ACCOUNT_ID = "_id";
     private static final String COLUMN_ACCOUNT_NAME = "account_name";
-
+    private static final String TABLE_CATEGORIES = "categories";
+    private static final String COLUMN_CATEGORY_ID = "_id";
+    private static final String COLUMN_CATEGORY_NAME = "category_name";
+    private static final String COLUMN_CATEGORY_TYPE = "category_type";
 
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
 
@@ -55,12 +59,25 @@ public class DBHelper extends SQLiteOpenHelper {
                 COLUMN_ACCOUNT_NAME + " TEXT UNIQUE)";
         db.execSQL(createAccountTable);
 
+
+        // 创建分类表
+        String createCategoryTable = "CREATE TABLE " + TABLE_CATEGORIES + " (" +
+                COLUMN_CATEGORY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                COLUMN_CATEGORY_NAME + " TEXT UNIQUE, " +
+                COLUMN_CATEGORY_TYPE + " TEXT)";
+        db.execSQL(createCategoryTable);
+
+
+        // 初始化默认分类
+        getDefaultCategories(db);
+
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_RECORDS);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_ACCOUNTS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_CATEGORIES);
         onCreate(db);
     }
 
@@ -159,6 +176,84 @@ public class DBHelper extends SQLiteOpenHelper {
         db.close();
         return accounts;
 
+    }
+
+
+    // 添加分类
+    public long addCategory(String categoryName,String categoryType) {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_CATEGORY_NAME, categoryName);
+        values.put(COLUMN_CATEGORY_TYPE, categoryType);
+        long insertId = db.insert(TABLE_CATEGORIES, null, values);
+        db.close();
+        return insertId;
+    }
+
+    // 删除分类
+    public void deleteCategory(int categoryId) {
+        SQLiteDatabase db = getWritableDatabase();
+        db.delete(TABLE_CATEGORIES,COLUMN_CATEGORY_ID + " = ?", new String[]{String.valueOf(categoryId)});
+        db.close();
+    }
+
+    // 更新分类
+    public int updateCategory(int categoryId,String categoryName,String categoryType) {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_CATEGORY_NAME, categoryName);
+        values.put(COLUMN_CATEGORY_TYPE, categoryType);
+        int updateRow = db.update(TABLE_CATEGORIES, values,COLUMN_CATEGORY_ID + " = ?",new String[]{String.valueOf(categoryId)});
+        db.close();
+        return updateRow;
+
+    }
+
+    // 获取所有分类
+    public List<String> getAllCategories(String categoryType) {
+        List<String> categories = new ArrayList<>();
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.query(TABLE_CATEGORIES, new String[]{COLUMN_CATEGORY_NAME}, COLUMN_CATEGORY_TYPE + " = ?", new String[]{categoryType},null,null,null);
+
+        if(cursor != null && cursor.moveToFirst()){
+            do{
+                String categoryName = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_CATEGORY_NAME));
+                categories.add(categoryName);
+            }while (cursor.moveToNext());
+            cursor.close();
+        }
+
+        db.close();
+        return categories;
+
+    }
+
+    private void getDefaultCategories(SQLiteDatabase db) {
+        addCategory("工资薪水", "收入",db);
+        addCategory("副业收入", "收入",db);
+        addCategory("投资收益", "收入",db);
+        addCategory("红包礼金", "收入",db);
+        addCategory("奖金", "收入",db);
+        addCategory("租金收入", "收入",db);
+        addCategory("其他收入", "收入",db);
+
+        addCategory("生活消费","支出",db);
+        addCategory("住房支出","支出",db);
+        addCategory("交通支出","支出",db);
+        addCategory("通讯支出","支出",db);
+        addCategory("保险","支出",db);
+        addCategory("娱乐休闲","支出",db);
+        addCategory("教育支出","支出",db);
+        addCategory("医疗支出","支出",db);
+        addCategory("储蓄投资","支出",db);
+        addCategory("其他支出","支出",db);
+
+    }
+    private void addCategory(String categoryName,String categoryType,SQLiteDatabase db){
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_CATEGORY_NAME, categoryName);
+        values.put(COLUMN_CATEGORY_TYPE,categoryType);
+        db.insert(TABLE_CATEGORIES, null, values);
     }
 
 
