@@ -26,7 +26,7 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
     private List<String> categoryList;
     private OnItemClickListener mItemClickListener;
     private String type;
-    private List<String> defaultCategories = Arrays.asList("工资薪水", "副业收入", "投资收益", "红包礼金", "奖金", "租金收入", "其他收入", "生活消费", "住房支出", "交通支出", "通讯支出", "保险", "娱乐休闲", "教育支出", "医疗支出", "储蓄投资", "其他支出");
+    private List<String> defaultCategories = Arrays.asList("工资薪水", "副业收入", "投资收益", "红包礼金", "奖金", "租金收入", "其他收入", "生活消费", "住房支出", "交通支出", "通讯支出", "保险", "娱乐休闲", "教育支出", "医疗支出", "家庭支出", "储蓄投资", "其他支出");
     private Map<String, Integer> categoryIdMap = new HashMap<>();
 
 

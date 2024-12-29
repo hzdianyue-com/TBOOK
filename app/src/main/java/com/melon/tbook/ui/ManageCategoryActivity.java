@@ -76,6 +76,7 @@ public class ManageCategoryActivity extends AppCompatActivity {
                 int row = dbHelper.updateCategory(categoryId, categoryName, selectType);
                 if (row > 0) {
                     loadCategories();
+                    Toast.makeText(ManageCategoryActivity.this, "更新成功", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(ManageCategoryActivity.this, "更新失败", Toast.LENGTH_SHORT).show();
                 }
