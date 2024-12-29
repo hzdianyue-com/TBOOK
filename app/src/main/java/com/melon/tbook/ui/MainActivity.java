@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.melon.tbook.R;
 import com.melon.tbook.adapter.AccountTotalAdapter;
+import com.melon.tbook.db.Borrow;
 import com.melon.tbook.db.DBHelper;
 import com.melon.tbook.db.Record;
 
@@ -28,9 +29,12 @@ public class MainActivity extends AppCompatActivity {
     private Button addRecordButton;
     private Button reportButton;
     private Button recordListButton;
+    private Button borrowManageButton;
     private DBHelper dbHelper;
     private TextView monthSummaryTextView;
     private AccountTotalAdapter accountTotalAdapter;
+    private TextView borrowInTextView;
+    private TextView borrowOutTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +47,9 @@ public class MainActivity extends AppCompatActivity {
         reportButton = findViewById(R.id.report_button);
         recordListButton = findViewById(R.id.record_list_button);
         monthSummaryTextView = findViewById(R.id.month_summary_text_view);
+        borrowInTextView = findViewById(R.id.total_borrow_in_text_view);
+        borrowOutTextView = findViewById(R.id.total_borrow_out_text_view);
+        borrowManageButton = findViewById(R.id.borrow_manage_button);
 
 
         dbHelper = new DBHelper(this);
@@ -60,6 +67,11 @@ public class MainActivity extends AppCompatActivity {
 
         recordListButton.setOnClickListener(v ->{
             Intent intent = new Intent(MainActivity.this, RecordListActivity.class);
+            startActivity(intent);
+        });
+
+        borrowManageButton.setOnClickListener(v ->{
+            Intent intent = new Intent(MainActivity.this, BorrowActivity.class);
             startActivity(intent);
         });
     }
@@ -128,6 +140,7 @@ public class MainActivity extends AppCompatActivity {
         String monthSummary = String.format("%d月总计：%.2f", month, monthTotal);
         monthSummaryTextView.setText(monthSummary);
         loadAccountTotalList();
+        loadBorrowTotal();
 
     }
 
@@ -142,6 +155,22 @@ public class MainActivity extends AppCompatActivity {
             accountTotalAdapter.setList(entryList);
         }
     }
+
+    private void loadBorrowTotal(){
+        double totalBorrowIn = 0.0;
+        double totalBorrowOut = 0.0;
+        List<Borrow> borrows = dbHelper.getAllBorrows();
+        for (Borrow borrow: borrows){
+            if(borrow.getType().equals("借入")){
+                totalBorrowIn += borrow.getAmount();
+            } else{
+                totalBorrowOut += borrow.getAmount();
+            }
+        }
+        borrowInTextView.setText(String.format("%.2f",totalBorrowIn));
+        borrowOutTextView.setText(String.format("%.2f",totalBorrowOut));
+    }
+
 
     private Map<String, AccountTotalAdapter.AccountInfo> getAccountTotal(){
         Map<String,AccountTotalAdapter.AccountInfo> accountTotal = new HashMap<>();
@@ -168,5 +197,4 @@ public class MainActivity extends AppCompatActivity {
         }
         return accountTotal;
     }
-
 }

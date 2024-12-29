@@ -33,6 +33,14 @@ public class DBHelper extends SQLiteOpenHelper {
     private static final String COLUMN_CATEGORY_NAME = "category_name";
     private static final String COLUMN_CATEGORY_TYPE = "category_type";
 
+    private static final String TABLE_BORROW = "borrow";
+    private static final String COLUMN_BORROW_ID = "_id";
+    private static final String COLUMN_BORROW_TYPE = "borrow_type";
+    private static final String COLUMN_BORROW_AMOUNT = "borrow_amount";
+    private static final String COLUMN_BORROWER = "borrower";
+    private static final String COLUMN_BORROW_DATE = "borrow_date";
+
+
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
 
 
@@ -67,6 +75,15 @@ public class DBHelper extends SQLiteOpenHelper {
                 COLUMN_CATEGORY_TYPE + " TEXT)";
         db.execSQL(createCategoryTable);
 
+        //创建借入借出表
+        String createBorrowTable = "CREATE TABLE " + TABLE_BORROW + " (" +
+                COLUMN_BORROW_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                COLUMN_BORROW_TYPE + " TEXT , " +
+                COLUMN_BORROW_AMOUNT + " REAL , " +
+                COLUMN_BORROWER + " TEXT , " +
+                COLUMN_BORROW_DATE + " TEXT )";
+        db.execSQL(createBorrowTable);
+
 
         // 初始化默认分类
         getDefaultCategories(db);
@@ -78,7 +95,59 @@ public class DBHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_RECORDS);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_ACCOUNTS);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_CATEGORIES);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_BORROW);
         onCreate(db);
+    }
+    //添加借款
+    public long addBorrow(Borrow borrow) {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_BORROW_TYPE, borrow.getType());
+        values.put(COLUMN_BORROW_AMOUNT,borrow.getAmount());
+        values.put(COLUMN_BORROWER,borrow.getBorrower());
+        values.put(COLUMN_BORROW_DATE,dateFormat.format(borrow.getBorrowDate()));
+
+        long insertId = db.insert(TABLE_BORROW, null, values);
+        db.close();
+        return insertId;
+    }
+
+    //删除借款
+    public void deleteBorrow(int borrowId) {
+        SQLiteDatabase db = getWritableDatabase();
+        db.delete(TABLE_BORROW,COLUMN_BORROW_ID + " = ?", new String[]{String.valueOf(borrowId)});
+        db.close();
+    }
+
+
+    // 获取所有借款
+    public List<Borrow> getAllBorrows() {
+        List<Borrow> borrows = new ArrayList<>();
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.query(TABLE_BORROW, null, null,null,null,null,null);
+
+        if(cursor != null && cursor.moveToFirst()){
+            do{
+                int id = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_BORROW_ID));
+                String type = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_BORROW_TYPE));
+                double amount = cursor.getDouble(cursor.getColumnIndexOrThrow(COLUMN_BORROW_AMOUNT));
+                String borrower = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_BORROWER));
+                String dateString = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_BORROW_DATE));
+                Date date = null;
+                try {
+                    date = dateFormat.parse(dateString);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                Borrow borrow = new Borrow(id,type,amount,borrower,date);
+                borrows.add(borrow);
+            }while (cursor.moveToNext());
+            cursor.close();
+        }
+
+        db.close();
+        return borrows;
+
     }
 
     // 添加记账记录
@@ -245,7 +314,6 @@ public class DBHelper extends SQLiteOpenHelper {
         addCategory("娱乐休闲","支出",db);
         addCategory("教育支出","支出",db);
         addCategory("医疗支出","支出",db);
-        addCategory("家庭支出","支出",db);
         addCategory("储蓄投资","支出",db);
         addCategory("其他支出","支出",db);
 
@@ -256,7 +324,6 @@ public class DBHelper extends SQLiteOpenHelper {
         values.put(COLUMN_CATEGORY_TYPE,categoryType);
         db.insert(TABLE_CATEGORIES, null, values);
     }
-
 
     // 计算总收入
     public double getTotalIncome() {
