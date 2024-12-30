@@ -124,7 +124,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public List<Borrow> getAllBorrows() {
         List<Borrow> borrows = new ArrayList<>();
         SQLiteDatabase db = getReadableDatabase();
-        Cursor cursor = db.query(TABLE_BORROW, null, null,null,null,null,null);
+        Cursor cursor = db.query(TABLE_BORROW, null, null, null, null, null, COLUMN_BORROW_DATE + " DESC");
 
         if(cursor != null && cursor.moveToFirst()){
             do{
@@ -149,7 +149,6 @@ public class DBHelper extends SQLiteOpenHelper {
         return borrows;
 
     }
-
     // 添加记账记录
     public long addRecord(Record record) {
         SQLiteDatabase db = getWritableDatabase();
@@ -325,6 +324,7 @@ public class DBHelper extends SQLiteOpenHelper {
         values.put(COLUMN_CATEGORY_TYPE,categoryType);
         db.insert(TABLE_CATEGORIES, null, values);
     }
+
 
     // 计算总收入
     public double getTotalIncome() {
