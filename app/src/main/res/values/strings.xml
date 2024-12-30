@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">TBOOK</string>
+    <string name="app_name">本地账本</string>
     <string name="total_amount">总计: %.2f 元</string>
     <string name="income">收入</string>
     <string name="expense">支出</string>

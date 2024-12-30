@@ -314,6 +314,7 @@ public class DBHelper extends SQLiteOpenHelper {
         addCategory("娱乐休闲","支出",db);
         addCategory("教育支出","支出",db);
         addCategory("医疗支出","支出",db);
+        addCategory("家庭支出","支出",db);
         addCategory("储蓄投资","支出",db);
         addCategory("其他支出","支出",db);
 
