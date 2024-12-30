@@ -18,12 +18,25 @@
             android:layout_weight="1"
             android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/item_type"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="16sp"
-                android:textStyle="bold"/>
+                android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/item_type"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:textStyle="bold"/>
+                <TextView
+                    android:id="@+id/item_category"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:layout_marginStart="8dp"/>
+            </LinearLayout>
+
+
 
             <TextView
                 android:id="@+id/item_amount"
@@ -31,23 +44,28 @@
                 android:layout_height="wrap_content"
                 android:textSize="16sp"/>
 
-            <TextView
-                android:id="@+id/item_category"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="14sp"/>
 
             <TextView
                 android:id="@+id/item_remark"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="14sp"/>
-
-            <TextView
-                android:id="@+id/item_date"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="12sp" />
+                android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/item_account"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="12sp" />
+                <TextView
+                    android:id="@+id/item_date"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="12sp"
+                    android:layout_marginStart="8dp"/>
+            </LinearLayout>
 
         </LinearLayout>
 

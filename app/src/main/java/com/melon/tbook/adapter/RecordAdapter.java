@@ -50,6 +50,8 @@ public class RecordAdapter extends RecyclerView.Adapter<RecordAdapter.ViewHolder
         holder.categoryTextView.setText(record.getCategory());
         holder.remarkTextView.setText(record.getRemark());
         holder.dateTextView.setText(dateFormat.format(record.getDate()));
+        holder.accountTextView.setText(record.getAccount());
+
 
         //点击删除
         holder.deleteImageView.setOnClickListener(v -> {
@@ -71,6 +73,7 @@ public class RecordAdapter extends RecyclerView.Adapter<RecordAdapter.ViewHolder
         TextView categoryTextView;
         TextView remarkTextView;
         TextView dateTextView;
+        TextView accountTextView;
         ImageView deleteImageView;
 
         public ViewHolder(@NonNull View itemView) {
@@ -80,6 +83,7 @@ public class RecordAdapter extends RecyclerView.Adapter<RecordAdapter.ViewHolder
             categoryTextView = itemView.findViewById(R.id.item_category);
             remarkTextView = itemView.findViewById(R.id.item_remark);
             dateTextView = itemView.findViewById(R.id.item_date);
+            accountTextView = itemView.findViewById(R.id.item_account);
             deleteImageView = itemView.findViewById(R.id.item_delete);
         }
     }
