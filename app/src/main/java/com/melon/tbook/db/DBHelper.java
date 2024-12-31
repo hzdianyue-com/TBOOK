@@ -96,6 +96,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
         // 初始化默认分类
         getDefaultCategories(db);
+        getDefaultAccount(db);
 
     }
 
@@ -345,6 +346,19 @@ public class DBHelper extends SQLiteOpenHelper {
         db.close();
         return categories;
 
+    }
+
+    private void getDefaultAccount(SQLiteDatabase db) {
+        addAccount("默认", db);
+        addAccount("网络账户", db);
+        addAccount("理财账户", db);
+        addAccount("银行卡账户", db);
+    }
+
+    private void addAccount(String accountName,SQLiteDatabase db){
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_ACCOUNT_NAME, accountName);
+        db.insert(TABLE_ACCOUNTS, null, values);
     }
 
     private void getDefaultCategories(SQLiteDatabase db) {
