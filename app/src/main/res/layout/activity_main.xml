@@ -32,7 +32,7 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="400dp"
+            android:layout_height="wrap_content"
             android:layout_below="@+id/month_summary_text_view"
             android:orientation="vertical">
             <androidx.recyclerview.widget.RecyclerView
@@ -43,7 +43,13 @@
                 />
         </LinearLayout>
 
-        <TextView
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/account_total_recycler_view"
+        android:orientation="vertical">
+
+    <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
@@ -56,8 +62,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp">
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp">
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -137,13 +143,14 @@
         android:layout_height="wrap_content"
         android:text="借贷管理"
         android:textSize="12sp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
         android:layout_marginBottom="4dp"
         android:layout_centerHorizontal="true"
         android:layout_below="@+id/header_layout"
         android:layout_alignEnd="@+id/header_layout"/>
 
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -157,7 +164,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="明细"
-            android:layout_margin="16dp"/>
+            android:layout_margin="10dp"/>
 
         <Button
             android:id="@+id/add_record_button"
@@ -165,7 +172,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/add_record"
-            android:layout_margin="16dp"/>
+            android:layout_margin="10dp"/>
 
         <Button
             android:id="@+id/report_button"
@@ -173,6 +180,6 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="报表"
-            android:layout_margin="16dp"/>
+            android:layout_margin="10dp"/>
     </LinearLayout>
 </RelativeLayout>
