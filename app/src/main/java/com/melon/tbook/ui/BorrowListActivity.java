@@ -28,7 +28,6 @@ public class BorrowListActivity extends AppCompatActivity {
     private String selectType = "借入";
     private Button addBorrowButton;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

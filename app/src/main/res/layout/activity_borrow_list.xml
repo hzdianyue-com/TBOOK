@@ -40,6 +40,7 @@
             android:text="添加"
             android:textSize="12sp"/>
     </LinearLayout>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/borrow_recycler_view"
         android:layout_width="match_parent"
