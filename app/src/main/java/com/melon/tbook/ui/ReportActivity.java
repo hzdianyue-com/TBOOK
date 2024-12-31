@@ -1,5 +1,6 @@
 package com.melon.tbook.ui;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
@@ -33,7 +34,7 @@ import java.util.Map;
 
 public class ReportActivity extends AppCompatActivity {
 
-    private Button monthlyReportButton, yearlyReportButton;
+    private Button monthlyReportButton, yearlyReportButton, ioReportButton;
     private PieChart pieChart;
     private DBHelper dbHelper;
     private TextView reportTitleTextView;
@@ -50,6 +51,7 @@ public class ReportActivity extends AppCompatActivity {
 
         monthlyReportButton = findViewById(R.id.monthly_report_button);
         yearlyReportButton = findViewById(R.id.yearly_report_button);
+        ioReportButton = findViewById(R.id.yearly_io_report_button);
         pieChart = findViewById(R.id.pie_chart);
         reportTitleTextView = findViewById(R.id.report_title);
         noDataTextView = findViewById(R.id.report_no_data);
@@ -59,7 +61,10 @@ public class ReportActivity extends AppCompatActivity {
         dbHelper = new DBHelper(this);
         monthlyReportButton.setOnClickListener(v -> generateMonthlyReport());
         yearlyReportButton.setOnClickListener(v -> generateYearlyReport());
-
+        ioReportButton.setOnClickListener(v ->{
+            Intent intent = new Intent(ReportActivity.this, MonthlyBarChartActivity.class);
+            startActivity(intent);
+        });
 
         initYearSpinner();
 
