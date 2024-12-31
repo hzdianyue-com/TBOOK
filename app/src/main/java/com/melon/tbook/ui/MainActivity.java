@@ -71,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         borrowManageButton.setOnClickListener(v ->{
-            Intent intent = new Intent(MainActivity.this, BorrowActivity.class);
+            Intent intent = new Intent(MainActivity.this, BorrowListActivity.class);
             startActivity(intent);
         });
     }

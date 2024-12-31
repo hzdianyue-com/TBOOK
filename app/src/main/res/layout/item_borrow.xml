@@ -16,25 +16,36 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:layout_weight="1">
-            <TextView
-                android:id="@+id/item_borrow_type"
-                android:layout_width="wrap_content"
+
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                />
+                android:orientation="horizontal"
+                android:layout_marginBottom="4dp"
+                >
+                <TextView
+                    android:id="@+id/item_borrow_type"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    />
+                <TextView
+                    android:id="@+id/item_borrower"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textSize="12sp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    />
+
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/item_borrow_amount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="14sp"
-                />
-            <TextView
-                android:id="@+id/item_borrower"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="12sp"
                 />
             <TextView
                 android:id="@+id/item_borrow_date"

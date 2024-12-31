@@ -84,7 +84,6 @@ public class DBHelper extends SQLiteOpenHelper {
                 COLUMN_BORROW_DATE + " TEXT )";
         db.execSQL(createBorrowTable);
 
-
         // 初始化默认分类
         getDefaultCategories(db);
 
@@ -119,12 +118,39 @@ public class DBHelper extends SQLiteOpenHelper {
         db.close();
     }
 
+    // 获取指定类型的借款
+    public List<Borrow> getAllBorrows(String borrowType) {
+        List<Borrow> borrows = new ArrayList<>();
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.query(TABLE_BORROW, null,COLUMN_BORROW_TYPE + " = ?", new String[]{borrowType},null,null,null);
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                int id = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_BORROW_ID));
+                String type = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_BORROW_TYPE));
+                double amount = cursor.getDouble(cursor.getColumnIndexOrThrow(COLUMN_BORROW_AMOUNT));
+                String borrower = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_BORROWER));
+                String dateString = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_BORROW_DATE));
+                Date date = null;
+                try {
+                    date = dateFormat.parse(dateString);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                Borrow borrow = new Borrow(id,type,amount,borrower,date);
+                borrows.add(borrow);
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+        db.close();
+        return borrows;
+    }
+
 
     // 获取所有借款
     public List<Borrow> getAllBorrows() {
         List<Borrow> borrows = new ArrayList<>();
         SQLiteDatabase db = getReadableDatabase();
-        Cursor cursor = db.query(TABLE_BORROW, null, null, null, null, null, COLUMN_BORROW_DATE + " DESC");
+        Cursor cursor = db.query(TABLE_BORROW, null, null,null,null,null,COLUMN_BORROW_DATE + " DESC");
 
         if(cursor != null && cursor.moveToFirst()){
             do{
@@ -149,6 +175,7 @@ public class DBHelper extends SQLiteOpenHelper {
         return borrows;
 
     }
+
     // 添加记账记录
     public long addRecord(Record record) {
         SQLiteDatabase db = getWritableDatabase();
