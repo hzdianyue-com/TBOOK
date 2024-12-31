@@ -8,7 +8,7 @@
     <LinearLayout
         android:id="@+id/header_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="100dp"
         android:orientation="vertical"
         >
         <LinearLayout
@@ -34,24 +34,27 @@
                 android:textSize="16sp"/>
         </LinearLayout>
 
-        <LinearLayout
-            android:id="@+id/line2"
-            android:layout_width="match_parent"
-            android:layout_height="420dp"
-            android:orientation="vertical"
-            app:layout_constraintBottom_toTopOf="@id/line3">
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/account_total_recycler_view"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:scrollbars="none"
-                android:layout_weight="1" />
-        </LinearLayout>
     </LinearLayout>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <RelativeLayout
+        android:id="@+id/line2"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_below="@+id/header_layout"
+        android:layout_above="@+id/line111">
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/account_total_recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="none"/>
+    </RelativeLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/line111"
+        android:layout_width="match_parent"
+        android:layout_height="230dp"
+        android:layout_alignParentBottom="true">
 
         <ScrollView
             android:id="@+id/line5"

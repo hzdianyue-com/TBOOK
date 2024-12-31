@@ -353,6 +353,8 @@ public class DBHelper extends SQLiteOpenHelper {
         addAccount("网络账户", db);
         addAccount("理财账户", db);
         addAccount("银行卡账户", db);
+        addAccount("支付宝", db);
+        addAccount("微信钱包", db);
     }
 
     private void addAccount(String accountName,SQLiteDatabase db){
