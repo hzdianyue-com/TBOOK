@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.text.DecimalFormat;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -36,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
     private AccountTotalAdapter accountTotalAdapter;
     private TextView borrowInTextView;
     private TextView borrowOutTextView;
+    private DecimalFormat decimalFormat = new DecimalFormat("#,##0.00");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -122,8 +124,10 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         totalAmount = totalIncome - totalExpense;
+        String str = decimalFormat.format(totalAmount);
 
-        String totalAmountText = String.format(getString(R.string.total_amount), totalAmount);
+        String totalAmountText = String.format(getString(R.string.total_amount), str);
+
         totalAmountTextView.setText(totalAmountText);
 
         Calendar calendar = Calendar.getInstance();
