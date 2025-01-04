@@ -1,6 +1,7 @@
 package com.melon.tbook.ui;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.TextView;
@@ -21,6 +22,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.text.DecimalFormat;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -35,10 +37,13 @@ public class MainActivity extends AppCompatActivity {
     private AccountTotalAdapter accountTotalAdapter;
     private TextView borrowInTextView;
     private TextView borrowOutTextView;
+    private DecimalFormat decimalFormat = new DecimalFormat("#,##0.00");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        dbHelper = new DBHelper(this);
+
         setContentView(R.layout.activity_main);
 
         totalAmountTextView = findViewById(R.id.total_amount_text_view);
@@ -51,8 +56,6 @@ public class MainActivity extends AppCompatActivity {
         borrowOutTextView = findViewById(R.id.total_borrow_out_text_view);
         borrowManageButton = findViewById(R.id.borrow_manage_button);
 
-
-        dbHelper = new DBHelper(this);
         accountTotalRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         addRecordButton.setOnClickListener(v -> {
@@ -71,18 +74,44 @@ public class MainActivity extends AppCompatActivity {
         });
 
         borrowManageButton.setOnClickListener(v ->{
-            Intent intent = new Intent(MainActivity.this, BorrowActivity.class);
+            Intent intent = new Intent(MainActivity.this, BorrowListActivity.class);
             startActivity(intent);
         });
     }
 
-
-
     @Override
     protected void onResume() {
         super.onResume();
+        if (!checkLogin()){
+            return;
+        }
         updateTotalAmount();
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        SharedPreferences.Editor editor = getSharedPreferences("user_prefs", MODE_PRIVATE).edit();
+        editor.putBoolean("is_logged_in", false);
+        editor.apply();
+
+    }
+
+    private boolean checkLogin() {
+        //检查用户是否已经登录
+        SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
+        boolean isLoggedIn = prefs.getBoolean("is_logged_in", false);
+        if (!isLoggedIn){
+            Intent intent = new Intent(MainActivity.this,LoginActivity.class);
+            startActivity(intent);
+            finish();
+            return false;
+        }
+
+        return true;
+    }
+
+
     private void updateTotalAmount() {
         double totalIncome = 0.0;
         double totalExpense = 0.0;
@@ -95,8 +124,10 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         totalAmount = totalIncome - totalExpense;
+        String str = decimalFormat.format(totalAmount);
 
-        String totalAmountText = String.format(getString(R.string.total_amount), totalAmount);
+        String totalAmountText = String.format(getString(R.string.total_amount), str);
+
         totalAmountTextView.setText(totalAmountText);
 
         Calendar calendar = Calendar.getInstance();

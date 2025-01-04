@@ -2,7 +2,6 @@ package com.melon.tbook.ui;
 
 import android.app.DatePickerDialog;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioButton;
@@ -11,28 +10,22 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.melon.tbook.R;
-import com.melon.tbook.adapter.BorrowAdapter;
 import com.melon.tbook.db.Borrow;
 import com.melon.tbook.db.DBHelper;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 
 public class BorrowActivity extends AppCompatActivity {
     private RadioGroup borrowTypeRadioGroup;
-    private RadioButton borrowInRadioButton, borrowOutRadioButton;
-    private EditText borrowerEditText, amountEditText;
-    private Button addBorrowButton, selectDateButton;
-    private RecyclerView borrowRecyclerView;
+    private RadioButton borrowInRadioButton,borrowOutRadioButton;
+    private EditText borrowerEditText,amountEditText;
+    private Button addBorrowButton,selectDateButton;
     private DBHelper dbHelper;
-    private BorrowAdapter borrowAdapter;
     private TextView borrowDateTextView;
     private Calendar calendar;
     private Date selectDate;
@@ -49,7 +42,6 @@ public class BorrowActivity extends AppCompatActivity {
         borrowerEditText = findViewById(R.id.borrower_edit_text);
         amountEditText = findViewById(R.id.borrow_amount_edit_text);
         addBorrowButton = findViewById(R.id.add_borrow_button);
-        borrowRecyclerView = findViewById(R.id.borrow_recycler_view);
         borrowDateTextView = findViewById(R.id.borrow_date_text_view);
         selectDateButton = findViewById(R.id.select_borrow_date_button);
 
@@ -58,21 +50,11 @@ public class BorrowActivity extends AppCompatActivity {
         selectDate = calendar.getTime();
         borrowDateTextView.setText(dateFormat.format(selectDate));
 
-        borrowRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-
-        loadBorrows();
-
 
         addBorrowButton.setOnClickListener(v -> addBorrow());
         selectDateButton.setOnClickListener(v -> showDatePickerDialog());
 
-        borrowAdapter.setOnItemClickListener(borrowId -> {
-            dbHelper.deleteBorrow(borrowId);
-            loadBorrows();
-        });
-
     }
-
     private void showDatePickerDialog() {
         DatePickerDialog datePickerDialog = new DatePickerDialog(this, (view, year, month, dayOfMonth) -> {
             calendar.set(Calendar.YEAR, year);
@@ -85,17 +67,6 @@ public class BorrowActivity extends AppCompatActivity {
             borrowDateTextView.setText(dateFormat.format(selectDate));
         }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
         datePickerDialog.show();
-    }
-
-    private void loadBorrows() {
-        List<Borrow> borrowList = dbHelper.getAllBorrows();
-        if(borrowAdapter == null){
-            borrowAdapter = new BorrowAdapter(borrowList);
-            borrowRecyclerView.setAdapter(borrowAdapter);
-        }else {
-            borrowAdapter.setList(borrowList);
-        }
-
     }
 
     private void addBorrow() {
@@ -114,8 +85,7 @@ public class BorrowActivity extends AppCompatActivity {
         if(insertId > 0){
             borrowerEditText.setText("");
             amountEditText.setText("");
-            loadBorrows();
-
+            Toast.makeText(this,"添加成功",Toast.LENGTH_SHORT).show();
         }else {
             Toast.makeText(this,"添加失败",Toast.LENGTH_SHORT).show();
         }

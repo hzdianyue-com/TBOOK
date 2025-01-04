@@ -5,6 +5,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -29,6 +30,7 @@ public class RecordListActivity extends AppCompatActivity {
     private RecordAdapter recordAdapter;
     private Spinner monthSpinner, yearSpinner;
     private int selectMonth, selectYear;
+    private TextView totalIncomeTextView,totalExpenseTextView,totalBalanceTextView;
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM", Locale.getDefault());
 
     @Override
@@ -38,7 +40,9 @@ public class RecordListActivity extends AppCompatActivity {
         recordRecyclerView = findViewById(R.id.record_recycler_view);
         monthSpinner = findViewById(R.id.month_spinner);
         yearSpinner = findViewById(R.id.year_spinner);
-
+        totalIncomeTextView = findViewById(R.id.total_income_text_view);
+        totalExpenseTextView = findViewById(R.id.total_expense_text_view);
+        totalBalanceTextView = findViewById(R.id.total_balance_text_view);
 
         dbHelper = new DBHelper(this);
         recordRecyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -150,6 +154,23 @@ public class RecordListActivity extends AppCompatActivity {
             }
         }
         recordAdapter.setList(recordList);
+        updateTotalAmount(recordList);
+    }
+    private void updateTotalAmount(List<Record> recordList) {
+        double totalIncome = 0.0;
+        double totalExpense = 0.0;
+        for (Record record : recordList){
+            if(record.getType().equals(getString(R.string.income))){
+                totalIncome += record.getAmount();
+            } else {
+                totalExpense += record.getAmount();
+            }
+        }
+
+        double totalBalance = totalIncome - totalExpense;
+        totalIncomeTextView.setText(String.format("收入：%.2f",totalIncome));
+        totalExpenseTextView.setText(String.format("支出：%.2f",totalExpense));
+        totalBalanceTextView.setText(String.format("汇总：%.2f",totalBalance));
 
     }
 }

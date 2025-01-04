@@ -32,6 +32,10 @@ public class DBHelper extends SQLiteOpenHelper {
     private static final String COLUMN_CATEGORY_ID = "_id";
     private static final String COLUMN_CATEGORY_NAME = "category_name";
     private static final String COLUMN_CATEGORY_TYPE = "category_type";
+    private static final String TABLE_USERS = "users";
+    private static final String COLUMN_USER_ID = "_id";
+    private static final String COLUMN_USERNAME = "username";
+    private static final String COLUMN_PASSWORD = "password";
 
     private static final String TABLE_BORROW = "borrow";
     private static final String COLUMN_BORROW_ID = "_id";
@@ -74,19 +78,25 @@ public class DBHelper extends SQLiteOpenHelper {
                 COLUMN_CATEGORY_NAME + " TEXT UNIQUE, " +
                 COLUMN_CATEGORY_TYPE + " TEXT)";
         db.execSQL(createCategoryTable);
-
+        //创建用户表
+        String createUsersTable = "CREATE TABLE " + TABLE_USERS + " (" +
+                COLUMN_USER_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                COLUMN_USERNAME + " TEXT UNIQUE, " +
+                COLUMN_PASSWORD + " TEXT)";
+        db.execSQL(createUsersTable);
         //创建借入借出表
         String createBorrowTable = "CREATE TABLE " + TABLE_BORROW + " (" +
                 COLUMN_BORROW_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 COLUMN_BORROW_TYPE + " TEXT , " +
                 COLUMN_BORROW_AMOUNT + " REAL , " +
                 COLUMN_BORROWER + " TEXT , " +
-                COLUMN_BORROW_DATE + " TEXT )";
+                COLUMN_BORROW_DATE + " TEXT " + ")";
         db.execSQL(createBorrowTable);
 
 
         // 初始化默认分类
         getDefaultCategories(db);
+        getDefaultAccount(db);
 
     }
 
@@ -95,6 +105,7 @@ public class DBHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_RECORDS);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_ACCOUNTS);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_CATEGORIES);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_BORROW);
         onCreate(db);
     }
@@ -120,11 +131,41 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
 
+    // 获取指定类型的借款
+    public List<Borrow> getAllBorrows(String borrowType) {
+        List<Borrow> borrows = new ArrayList<>();
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.query(TABLE_BORROW, null, COLUMN_BORROW_TYPE + " = ?", new String[]{borrowType}, null, null, COLUMN_BORROW_DATE + " DESC");
+
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                int id = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_BORROW_ID));
+                String type = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_BORROW_TYPE));
+                double amount = cursor.getDouble(cursor.getColumnIndexOrThrow(COLUMN_BORROW_AMOUNT));
+                String borrower = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_BORROWER));
+                String dateString = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_BORROW_DATE));
+
+                Date date = null;
+                try {
+                    date = dateFormat.parse(dateString);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                Borrow borrow = new Borrow(id,type,amount,borrower,date);
+                borrows.add(borrow);
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+        db.close();
+        return borrows;
+    }
+
+
     // 获取所有借款
     public List<Borrow> getAllBorrows() {
         List<Borrow> borrows = new ArrayList<>();
         SQLiteDatabase db = getReadableDatabase();
-        Cursor cursor = db.query(TABLE_BORROW, null, null, null, null, null, COLUMN_BORROW_DATE + " DESC");
+        Cursor cursor = db.query(TABLE_BORROW, null, null,null,null,null,COLUMN_BORROW_DATE + " DESC");
 
         if(cursor != null && cursor.moveToFirst()){
             do{
@@ -133,6 +174,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 double amount = cursor.getDouble(cursor.getColumnIndexOrThrow(COLUMN_BORROW_AMOUNT));
                 String borrower = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_BORROWER));
                 String dateString = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_BORROW_DATE));
+
                 Date date = null;
                 try {
                     date = dateFormat.parse(dateString);
@@ -149,6 +191,16 @@ public class DBHelper extends SQLiteOpenHelper {
         return borrows;
 
     }
+
+    // 更新借款
+    public int updateBorrow(int borrowId,long reminderId,boolean isRepeat) {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues values = new ContentValues();
+        int updateRow =  db.update(TABLE_BORROW,values,COLUMN_BORROW_ID + " = ?",new String[]{String.valueOf(borrowId)});
+        db.close();
+        return updateRow;
+    }
+
     // 添加记账记录
     public long addRecord(Record record) {
         SQLiteDatabase db = getWritableDatabase();
@@ -296,6 +348,21 @@ public class DBHelper extends SQLiteOpenHelper {
 
     }
 
+    private void getDefaultAccount(SQLiteDatabase db) {
+        addAccount("默认", db);
+        addAccount("网络账户", db);
+        addAccount("理财账户", db);
+        addAccount("银行卡账户", db);
+        addAccount("支付宝", db);
+        addAccount("微信钱包", db);
+    }
+
+    private void addAccount(String accountName,SQLiteDatabase db){
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_ACCOUNT_NAME, accountName);
+        db.insert(TABLE_ACCOUNTS, null, values);
+    }
+
     private void getDefaultCategories(SQLiteDatabase db) {
         addCategory("工资薪水", "收入",db);
         addCategory("副业收入", "收入",db);
@@ -325,6 +392,51 @@ public class DBHelper extends SQLiteOpenHelper {
         db.insert(TABLE_CATEGORIES, null, values);
     }
 
+    // 添加用户
+    public long addUser(User user) {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_USERNAME, user.getUsername());
+        values.put(COLUMN_PASSWORD, user.getPassword());
+        long insertId = db.insert(TABLE_USERS, null, values);
+        db.close();
+        return insertId;
+    }
+
+    // 根据用户名获取用户
+    public User getUserByUserName(String username) {
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.query(TABLE_USERS, null, COLUMN_USERNAME + " = ?", new String[]{username}, null, null, null);
+
+        User user = null;
+        if (cursor != null && cursor.moveToFirst()) {
+            int id = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_USER_ID));
+            String name = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_USERNAME));
+            String password = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_PASSWORD));
+            user = new User(id,name,password);
+            cursor.close();
+        }
+
+        db.close();
+        return user;
+    }
+
+    // 获取用户
+    public User getUser() {
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.query(TABLE_USERS, null,null,null,null,null,null,null);
+        User user = null;
+        if(cursor != null && cursor.moveToFirst()){
+            int id = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_USER_ID));
+            String name = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_USERNAME));
+            String password = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_PASSWORD));
+            user = new User(id,name,password);
+            cursor.close();
+
+        }
+        db.close();
+        return user;
+    }
 
     // 计算总收入
     public double getTotalIncome() {
