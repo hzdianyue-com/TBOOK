@@ -12,4 +12,11 @@
     <string name="select_category">选择分类</string>
     <string name="account_type">账户类型：</string>
     <string name="error_amount">金额输入错误</string>
+    <string name="in_out_report">收支报表</string>
+    <string name="borrow_manage">借贷管理</string>
+    <string name="add_borrow">添加借贷</string>
+    <string name="category_manage">分类管理</string>
+    <string name="record_list">记账明细</string>
+    <string name="account_manage">账户管理</string>
+    <string name="report">统计报表</string>
 </resources>

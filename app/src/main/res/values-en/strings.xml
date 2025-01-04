@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Account</string>
+    <string name="total_amount">total amount:%s</string>
+    <string name="income">income</string>
+    <string name="expense">expense</string>
+    <string name="amount">amount</string>
+    <string name="category">category</string>
+    <string name="remark">remark</string>
+    <string name="add_record">add record</string>
+    <string name="save">save</string>
+    <string name="date">date</string>
+    <string name="select_category">category</string>
+    <string name="account_type">type</string>
+    <string name="error_amount">error</string>
+    <string name="in_out_report">report</string>
+    <string name="borrow_manage">borrow</string>
+    <string name="add_borrow">add borrow</string>
+    <string name="category_manage">category</string>
+    <string name="record_list">record list</string>
+    <string name="account_manage">account</string>
+    <string name="report">report</string>
+</resources>
